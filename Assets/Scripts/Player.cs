@@ -68,8 +68,6 @@ public class Player : MonoBehaviour
         }
     }
 
-
-
     void PlayerMove()
     {
         inputHorizontal = Input.GetAxisRaw("Horizontal");
