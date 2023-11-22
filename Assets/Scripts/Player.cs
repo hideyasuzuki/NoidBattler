@@ -14,7 +14,7 @@ public class Player : MonoBehaviour
     float speed = 5000;
     float posX;
     float posZ;
-
+    
     float inputHorizontal;
     float inputVertical;
     
