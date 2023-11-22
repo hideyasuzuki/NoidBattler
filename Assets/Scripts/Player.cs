@@ -10,16 +10,17 @@ public class Player : MonoBehaviour
 {
     [SerializeField] Slider hp;
     private Rigidbody rb;
-    float boostSpeed = 1000;
-    float speed = 5000;
-    float posX;
-    float posZ;
 
-    float inputHorizontal;
-    float inputVertical;
-    
+    Vector3 movingDirecion;
+    float speedMagnification = 10;
+    Vector3 movingVelocity;
+
+    float boostSpeed = 500;
+
     bool isStop = false;
     bool isStep = false;
+
+    int jumpCount = 0;
 
     Animator animator;
 
@@ -68,21 +69,36 @@ public class Player : MonoBehaviour
         }
     }
 
+    void FixedUpdate()
+    {
+        rb.velocity = new Vector3(movingVelocity.x, rb.velocity.y, movingVelocity.z);
+
+        if (isStep)
+        {
+            rb.AddForce(new Vector3(movingVelocity.x, 0, movingVelocity.z) * boostSpeed * Time.deltaTime, ForceMode.VelocityChange);
+        }
+    }
+
+    void Jump()
+    {
+        float jumpPower = 50f; // ÉWÉÉÉìÉvÇÃçÇÇ≥
+
+        if (Input.GetKeyDown(KeyCode.Space) && jumpCount <= 1)
+        {
+            rb.AddForce(transform.up * jumpPower, ForceMode.Impulse);
+            jumpCount++;
+        }
+    }
+
     void PlayerMove()
     {
-        inputHorizontal = Input.GetAxisRaw("Horizontal");
-        inputVertical = Input.GetAxisRaw("Vertical");
-
-        rb.velocity = new Vector3(inputHorizontal, 0.0f, inputVertical) * speed * Time.deltaTime;
+        float x = Input.GetAxisRaw("Horizontal");
+        float z = Input.GetAxisRaw("Vertical");
+        movingDirecion = new Vector3(x, 0, z);
 
         if (rb.velocity.x == 0)
         {
             animator.SetInteger("State", (int)State.stay);
-        }
-
-        if (isStep)
-        {
-            rb.AddForce(new Vector3(posX, rb.velocity.y, posZ) * boostSpeed * Time.deltaTime, ForceMode.VelocityChange);
         }
 
         if (rb.velocity.z > 0.1f)
@@ -91,8 +107,7 @@ public class Player : MonoBehaviour
             if (Input.GetKey(KeyCode.LeftShift) && !isStep)
             {
                 animator.SetInteger("State", (int)State.stepFront);
-                posZ = 5;
-                Debug.Log("A");
+                movingDirecion.z *= 5;
             }
         }
         else if (rb.velocity.z < -0.1f)
@@ -101,7 +116,7 @@ public class Player : MonoBehaviour
             if (Input.GetKey(KeyCode.LeftShift) && !isStep)
             {
                 animator.SetInteger("State", (int)State.stepBack);
-                posZ = -5;
+                movingDirecion.z *= -5;
             }
         }
 
@@ -111,7 +126,7 @@ public class Player : MonoBehaviour
             if (Input.GetKey(KeyCode.LeftShift) && !isStep)
             {
                 animator.SetInteger("State", (int)State.stepRight);
-                posX = 5;
+                movingDirecion.x *= 5;
             }
         }
         else if (rb.velocity.x < -0.1f)
@@ -120,7 +135,7 @@ public class Player : MonoBehaviour
             if (Input.GetKey(KeyCode.LeftShift) && !isStep)
             {
                 animator.SetInteger("State", (int)State.stepLeft);
-                posX = -5;
+                movingDirecion.x *= -5;
             }
         }
 
@@ -130,12 +145,10 @@ public class Player : MonoBehaviour
             if (Input.GetKey(KeyCode.W))
             {
                 animator.SetInteger("State", (int)State.forward);
-                posZ = 2.5f;
             }
             else if (Input.GetKey(KeyCode.S))
             {
                 animator.SetInteger("State", (int)State.back);
-                posZ = 2.5f;
             }
         }
         if (Input.GetKey(KeyCode.W) && Input.GetKey(KeyCode.S))
@@ -144,14 +157,15 @@ public class Player : MonoBehaviour
             if (Input.GetKey(KeyCode.D))
             {
                 animator.SetInteger("State", (int)State.right);
-                posX = 2.5f;
             }
             else if (Input.GetKey(KeyCode.A))
             {
                 animator.SetInteger("State", (int)State.left);
-                posX = 2.5f;
             }
         }
+
+        movingDirecion.Normalize();//éŒÇﬂÇÃãóó£Ç™í∑Ç≠Ç»ÇÈÇÃÇñhÇ¨Ç‹Ç∑
+        movingVelocity = movingDirecion * speedMagnification;
     }
 
     void PlayerAttack()
@@ -221,8 +235,6 @@ public class Player : MonoBehaviour
     void StepEndEvent()
     {
         isStep = false;
-        posX = 0;
-        posZ = 0;
     }
 
 
@@ -237,6 +249,14 @@ public class Player : MonoBehaviour
         {
             int damage = 1;
             hp.value -= damage * Time.deltaTime;
+        }
+    }
+
+    private void OnCollisionEnter(Collision other)
+    {
+        if (other.gameObject.tag == "Ground")
+        {
+            jumpCount = 0;
         }
     }
 }
