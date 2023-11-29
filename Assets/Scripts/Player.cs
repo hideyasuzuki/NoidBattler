@@ -11,11 +11,11 @@ public class Player : MonoBehaviour
     [SerializeField] Slider hp;
     private Rigidbody rb;
 
-    Vector3 movingDirecion;
-    float speedMagnification = 10;
+    Vector3 movingDirection;
+    float speed = 20;
     Vector3 movingVelocity;
 
-    float boostSpeed = 500;
+    float boostSpeed = 250;
 
     bool isStop = false;
     bool isStep = false;
@@ -39,10 +39,10 @@ public class Player : MonoBehaviour
 
     public enum AttackState
     {
-        swingJump = 1,
-        swingUp,
-        swingSide,
+        swingSide = 1,
         swingDown,
+        swingJump,
+        swingUp,
     }
 
 
@@ -58,24 +58,27 @@ public class Player : MonoBehaviour
     {
         if (isStop)
         {
-            rb.velocity = Vector3.zero;
+            movingVelocity = Vector3.zero;
             animator.SetInteger("State", (int)State.stay);
             return;
         }
         else
         {
-             PlayerMove();
+            PlayerMove();
             PlayerAttack();
+            Jump();
         }
     }
 
     void FixedUpdate()
     {
-        rb.velocity = new Vector3(movingVelocity.x, rb.velocity.y, movingVelocity.z);
-
         if (isStep)
         {
             rb.AddForce(new Vector3(movingVelocity.x, 0, movingVelocity.z) * boostSpeed * Time.deltaTime, ForceMode.VelocityChange);
+        }
+        else
+        {
+            rb.velocity = new Vector3(movingVelocity.x, rb.velocity.y, movingVelocity.z);
         }
     }
 
@@ -94,7 +97,7 @@ public class Player : MonoBehaviour
     {
         float x = Input.GetAxisRaw("Horizontal");
         float z = Input.GetAxisRaw("Vertical");
-        movingDirecion = new Vector3(x, 0, z);
+        movingDirection = new Vector3(x, 0, z);
 
         if (rb.velocity.x == 0)
         {
@@ -107,7 +110,6 @@ public class Player : MonoBehaviour
             if (Input.GetKey(KeyCode.LeftShift) && !isStep)
             {
                 animator.SetInteger("State", (int)State.stepFront);
-                movingDirecion.z *= 5;
             }
         }
         else if (rb.velocity.z < -0.1f)
@@ -116,7 +118,6 @@ public class Player : MonoBehaviour
             if (Input.GetKey(KeyCode.LeftShift) && !isStep)
             {
                 animator.SetInteger("State", (int)State.stepBack);
-                movingDirecion.z *= -5;
             }
         }
 
@@ -126,7 +127,6 @@ public class Player : MonoBehaviour
             if (Input.GetKey(KeyCode.LeftShift) && !isStep)
             {
                 animator.SetInteger("State", (int)State.stepRight);
-                movingDirecion.x *= 5;
             }
         }
         else if (rb.velocity.x < -0.1f)
@@ -135,7 +135,6 @@ public class Player : MonoBehaviour
             if (Input.GetKey(KeyCode.LeftShift) && !isStep)
             {
                 animator.SetInteger("State", (int)State.stepLeft);
-                movingDirecion.x *= -5;
             }
         }
 
@@ -164,65 +163,67 @@ public class Player : MonoBehaviour
             }
         }
 
-        movingDirecion.Normalize();//ŽÎ‚ß‚Ì‹——£‚ª’·‚­‚È‚é‚Ì‚ð–h‚¬‚Ü‚·
-        movingVelocity = movingDirecion * speedMagnification;
+        movingDirection.Normalize();//ŽÎ‚ß‚Ì‹——£‚ª’·‚­‚È‚é‚Ì‚ð–h‚¬‚Ü‚·
+        movingVelocity = movingDirection * speed;
     }
 
     void PlayerAttack()
     {
-        float strongAttackTimer = 0;
-        float strongAttackCount = 5;
-
         float weakAttackTimer = 0;
         float weakAttackCount = 2;
+
+        float strongAttackTimer = 0;
+        float strongAttackCount = 5;
 
         bool isWeakAttack = false;
         bool isStrongAttack = false;
 
         if (Input.GetMouseButtonDown(0) && !isStrongAttack)
         {
-            animator.SetInteger("AttackState", (int)AttackState.swingJump);
-            isStrongAttack = true;
             isStop = true;
-        }
-        else if(Input.GetMouseButtonDown(1) && !isStrongAttack)
-        {
-            animator.SetInteger("AttackState", (int)AttackState.swingUp);
             isStrongAttack = true;
-            isStop = true;
-        }
-
-        if(Input.GetKeyDown(KeyCode.E) && !isWeakAttack)
-        {
             animator.SetInteger("AttackState", (int)AttackState.swingSide);
-            isWeakAttack = true;
-            isStop = true;
         }
-        else if(Input.GetKeyDown(KeyCode.F) && !isWeakAttack)
+        else if (Input.GetMouseButtonDown(1) && !isStrongAttack)
         {
-            animator.SetInteger("AttackState", (int)AttackState.swingDown);
-            isWeakAttack = true;
             isStop = true;
+            isStrongAttack = true;
+            animator.SetInteger("AttackState", (int)AttackState.swingDown);
         }
 
 
-        if(isStrongAttack)
+        if (Input.GetKeyDown(KeyCode.E) && !isWeakAttack)
+        {
+            isStop = true;
+            isWeakAttack = true;
+            animator.SetInteger("AttackState", (int)AttackState.swingUp);
+        }
+        else if (Input.GetKeyDown(KeyCode.F) && !isWeakAttack)
+        {
+            isStop = true;
+            isWeakAttack = true;
+            animator.SetInteger("AttackState", (int)AttackState.swingJump);
+        }
+
+
+        if (isWeakAttack)
+        {
+            weakAttackTimer += Time.deltaTime;
+            if (weakAttackTimer > weakAttackCount)
+            {
+                weakAttackTimer = 0;
+                isWeakAttack = false;
+            }
+        }
+
+
+        if (isStrongAttack)
         {
             strongAttackTimer += Time.deltaTime;
             if(strongAttackTimer > strongAttackCount)
             {
                 strongAttackTimer = 0;
                 isStrongAttack = false;
-            }
-        }
-
-        if(isWeakAttack)
-        {
-            weakAttackTimer += Time.deltaTime;
-            if(weakAttackTimer > weakAttackCount)
-            {
-                weakAttackTimer = 0;
-                isWeakAttack = false;
             }
         }
     }
