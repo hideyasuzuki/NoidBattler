@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.Rendering;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -7,6 +8,7 @@ using UnityEngine.UI;
 public class TitleController : MonoBehaviour
 {
     [SerializeField] Button startButton = null;
+    [SerializeField] GameObject map = null;
 
     // Start is called before the first frame update
     void Start()
@@ -31,6 +33,6 @@ public class TitleController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        map.transform.Rotate(0, 5 * Time.deltaTime, 0);
     }
 }
