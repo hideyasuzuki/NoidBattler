@@ -1,8 +1,3 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO.IsolatedStorage;
-using UnityEditor.TextCore.Text;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -11,11 +6,11 @@ public class GunPlayer : MonoBehaviour
     [SerializeField] Slider hp;
     private Rigidbody rb;
 
-    Vector3 movingDirecion;
-    float speedMagnification = 10;
+    Vector3 movingDirection;
+    float speed = 20;
     Vector3 movingVelocity;
 
-    float boostSpeed = 500;
+    float boostSpeed = 250;
 
     bool isStop = false;
     bool isStep = false;
@@ -23,7 +18,6 @@ public class GunPlayer : MonoBehaviour
     int jumpCount = 0;
 
     Animator animator;
-
 
     public enum State
     {
@@ -95,7 +89,7 @@ public class GunPlayer : MonoBehaviour
     {
         float x = Input.GetAxisRaw("Horizontal");
         float z = Input.GetAxisRaw("Vertical");
-        movingDirecion = new Vector3(x, 0, z);
+        movingDirection = new Vector3(x, 0, z);
         
 
         if (rb.velocity.x == 0)
@@ -109,7 +103,7 @@ public class GunPlayer : MonoBehaviour
             if (Input.GetKey(KeyCode.LeftShift) && !isStep)
             {
                 animator.SetInteger("State", (int)State.stepFront);
-                movingDirecion.z *= 5;
+                movingDirection.z *= 5;
             }
         }
         else if (rb.velocity.z < -0.1f)
@@ -118,7 +112,7 @@ public class GunPlayer : MonoBehaviour
             if (Input.GetKey(KeyCode.LeftShift) && !isStep)
             {
                 animator.SetInteger("State", (int)State.stepBack);
-                movingDirecion.z *= -5;
+                movingDirection.z *= -5;
             }
         }
 
@@ -128,7 +122,7 @@ public class GunPlayer : MonoBehaviour
             if (Input.GetKey(KeyCode.LeftShift) && !isStep)
             {
                 animator.SetInteger("State", (int)State.stepRight);
-                movingDirecion.x *= 5;
+                movingDirection.x *= 5;
             }
         }
         else if (rb.velocity.x < -0.1f)
@@ -137,7 +131,7 @@ public class GunPlayer : MonoBehaviour
             if (Input.GetKey(KeyCode.LeftShift) && !isStep)
             {
                 animator.SetInteger("State", (int)State.stepLeft);
-                movingDirecion.x *= -5;
+                movingDirection.x *= -5;
             }
         }
 
@@ -166,8 +160,8 @@ public class GunPlayer : MonoBehaviour
             }
         }
 
-        movingDirecion.Normalize();//ŽÎ‚ß‚Ì‹——£‚ª’·‚­‚È‚é‚Ì‚ð–h‚¬‚Ü‚·
-        movingVelocity = movingDirecion * speedMagnification;
+        movingDirection.Normalize();//ŽÎ‚ß‚Ì‹——£‚ª’·‚­‚È‚é‚Ì‚ð–h‚¬‚Ü‚·
+        movingVelocity = movingDirection * speed;
     }
 
     void PlayerAttack()
