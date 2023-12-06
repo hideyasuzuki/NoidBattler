@@ -1,8 +1,3 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO.IsolatedStorage;
-using UnityEditor.TextCore.Text;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -35,6 +30,8 @@ public class Player : MonoBehaviour
         stepRight,
         stepBack,
         stepLeft,
+        jump,
+        fall,
     }
 
     public enum AttackState
@@ -90,6 +87,16 @@ public class Player : MonoBehaviour
         {
             rb.AddForce(transform.up * jumpPower, ForceMode.Impulse);
             jumpCount++;
+        }
+
+
+        if (rb.velocity.y < 0 && jumpCount != 0 )
+        {
+            animator.SetInteger("State", (int)State.jump);
+        }
+        if (rb.velocity.y > 0)
+        {
+            animator.SetInteger("State", (int)State.jump);
         }
     }
 
