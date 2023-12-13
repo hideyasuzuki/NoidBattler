@@ -2,20 +2,22 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO.IsolatedStorage;
-using UnityEditor.TextCore.Text;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class GunPlayer : MonoBehaviour
 {
     [SerializeField] Slider hp;
+    [SerializeField] GameObject handgun;
+    [SerializeField] GameObject bazooka;
+    [SerializeField] GameObject launcher;
     private Rigidbody rb;
 
-    Vector3 movingDirecion;
-    float speedMagnification = 10;
+    Vector3 movingDirection;
+    float speedMagnification = 20;
     Vector3 movingVelocity;
 
-    float boostSpeed = 500;
+    float boostSpeed = 250;
 
     bool isStop = false;
     bool isStep = false;
@@ -45,12 +47,19 @@ public class GunPlayer : MonoBehaviour
         gunAttack3,
     }
 
+    public Animator PlayerAnimator
+    {
+        get { return animator; }
+    }
+
 
     // Start is called before the first frame update
     void Start()
     {
         rb = GetComponent<Rigidbody>();
         animator = GetComponent<Animator>();
+        bazooka.SetActive(false);
+        launcher.SetActive(false);
     }
 
     // Update is called once per frame
@@ -58,7 +67,7 @@ public class GunPlayer : MonoBehaviour
     {
         if (isStop)
         {
-            rb.velocity = Vector3.zero;
+            movingVelocity = Vector3.zero;
             animator.SetInteger("State", (int)State.stay);
             return;
         }
@@ -72,11 +81,14 @@ public class GunPlayer : MonoBehaviour
 
     void FixedUpdate()
     {
-        rb.velocity = new Vector3(movingVelocity.x, rb.velocity.y, movingVelocity.z);
-
         if (isStep)
         {
+            movingDirection.Normalize();
             rb.AddForce(new Vector3(movingVelocity.x, 0, movingVelocity.z) * boostSpeed * Time.deltaTime, ForceMode.VelocityChange);
+        }
+        else
+        {
+            rb.velocity = new Vector3(movingVelocity.x, rb.velocity.y, movingVelocity.z);
         }
     }
 
@@ -95,9 +107,8 @@ public class GunPlayer : MonoBehaviour
     {
         float x = Input.GetAxisRaw("Horizontal");
         float z = Input.GetAxisRaw("Vertical");
-        movingDirecion = new Vector3(x, 0, z);
+        movingDirection = new Vector3(x, 0, z);
         
-
         if (rb.velocity.x == 0)
         {
             animator.SetInteger("State", (int)State.stay);
@@ -109,7 +120,6 @@ public class GunPlayer : MonoBehaviour
             if (Input.GetKey(KeyCode.LeftShift) && !isStep)
             {
                 animator.SetInteger("State", (int)State.stepFront);
-                movingDirecion.z *= 5;
             }
         }
         else if (rb.velocity.z < -0.1f)
@@ -118,7 +128,6 @@ public class GunPlayer : MonoBehaviour
             if (Input.GetKey(KeyCode.LeftShift) && !isStep)
             {
                 animator.SetInteger("State", (int)State.stepBack);
-                movingDirecion.z *= -5;
             }
         }
 
@@ -128,7 +137,6 @@ public class GunPlayer : MonoBehaviour
             if (Input.GetKey(KeyCode.LeftShift) && !isStep)
             {
                 animator.SetInteger("State", (int)State.stepRight);
-                movingDirecion.x *= 5;
             }
         }
         else if (rb.velocity.x < -0.1f)
@@ -137,7 +145,6 @@ public class GunPlayer : MonoBehaviour
             if (Input.GetKey(KeyCode.LeftShift) && !isStep)
             {
                 animator.SetInteger("State", (int)State.stepLeft);
-                movingDirecion.x *= -5;
             }
         }
 
@@ -166,8 +173,8 @@ public class GunPlayer : MonoBehaviour
             }
         }
 
-        movingDirecion.Normalize();//ŽÎ‚ß‚Ì‹——£‚ª’·‚­‚È‚é‚Ì‚ð–h‚¬‚Ü‚·
-        movingVelocity = movingDirecion * speedMagnification;
+        movingDirection.Normalize();//ŽÎ‚ß‚Ì‹——£‚ª’·‚­‚È‚é‚Ì‚ð–h‚¬‚Ü‚·
+        movingVelocity = movingDirection * speedMagnification;
     }
 
     void PlayerAttack()
@@ -236,6 +243,27 @@ public class GunPlayer : MonoBehaviour
     void IsStopEvent()
     {
         isStop = false;
+    }
+
+    void HandgunActiveEvent()
+    {
+        handgun.SetActive(true);
+        bazooka.SetActive(false);
+        launcher.SetActive(false);
+    }
+
+    void BazookaActiveEvent()
+    {
+        handgun.SetActive(false);
+        bazooka.SetActive(true) ;
+        launcher.SetActive(false);
+    }
+
+    void LauncherActiveEvent()
+    {
+        handgun.SetActive(false);
+        bazooka.SetActive(false);
+        launcher.SetActive(true);
     }
 
     void OnTriggerEnter(Collider other)
