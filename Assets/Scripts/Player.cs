@@ -11,7 +11,7 @@ public class Player : MonoBehaviour
     private Rigidbody rb;
 
     Vector3 movingDirection;
-    float speedMagnification = 10;
+    float speed = 10;
     Vector3 movingVelocity;
 
     float boostSpeed = 500;
@@ -163,7 +163,7 @@ public class Player : MonoBehaviour
         }
 
         movingDirection.Normalize();//ŽÎ‚ß‚Ì‹——£‚ª’·‚­‚È‚é‚Ì‚ð–h‚¬‚Ü‚·
-        movingVelocity = movingDirection * speedMagnification;
+        movingVelocity = movingDirection * speed;
     }
 
     void PlayerAttack()
