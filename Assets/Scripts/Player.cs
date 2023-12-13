@@ -10,7 +10,7 @@ public class Player : MonoBehaviour
     [SerializeField] Slider hp;
     private Rigidbody rb;
 
-    Vector3 movingDirecion;
+    Vector3 movingDirection;
     float speedMagnification = 10;
     Vector3 movingVelocity;
 
@@ -92,7 +92,7 @@ public class Player : MonoBehaviour
     {
         float x = Input.GetAxisRaw("Horizontal");
         float z = Input.GetAxisRaw("Vertical");
-        movingDirecion = new Vector3(x, 0, z);
+        movingDirection = new Vector3(x, 0, z);
 
         if (rb.velocity.x == 0)
         {
@@ -105,7 +105,7 @@ public class Player : MonoBehaviour
             if (Input.GetKey(KeyCode.LeftShift) && !isStep)
             {
                 animator.SetInteger("State", (int)State.stepFront);
-                movingDirecion.z *= 5;
+                movingDirection.z *= 5;
             }
         }
         else if (rb.velocity.z < -0.1f)
@@ -114,7 +114,7 @@ public class Player : MonoBehaviour
             if (Input.GetKey(KeyCode.LeftShift) && !isStep)
             {
                 animator.SetInteger("State", (int)State.stepBack);
-                movingDirecion.z *= -5;
+                movingDirection.z *= -5;
             }
         }
 
@@ -124,7 +124,7 @@ public class Player : MonoBehaviour
             if (Input.GetKey(KeyCode.LeftShift) && !isStep)
             {
                 animator.SetInteger("State", (int)State.stepRight);
-                movingDirecion.x *= 5;
+                movingDirection.x *= 5;
             }
         }
         else if (rb.velocity.x < -0.1f)
@@ -133,7 +133,7 @@ public class Player : MonoBehaviour
             if (Input.GetKey(KeyCode.LeftShift) && !isStep)
             {
                 animator.SetInteger("State", (int)State.stepLeft);
-                movingDirecion.x *= -5;
+                movingDirection.x *= -5;
             }
         }
 
@@ -162,8 +162,8 @@ public class Player : MonoBehaviour
             }
         }
 
-        movingDirecion.Normalize();//ŽÎ‚ß‚Ì‹——£‚ª’·‚­‚È‚é‚Ì‚ð–h‚¬‚Ü‚·
-        movingVelocity = movingDirecion * speedMagnification;
+        movingDirection.Normalize();//ŽÎ‚ß‚Ì‹——£‚ª’·‚­‚È‚é‚Ì‚ð–h‚¬‚Ü‚·
+        movingVelocity = movingDirection * speedMagnification;
     }
 
     void PlayerAttack()
